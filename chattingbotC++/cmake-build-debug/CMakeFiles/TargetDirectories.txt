@@ -1,3 +1,0 @@
-H:/+/co/cpp/chattingbotC++/cmake-build-debug/CMakeFiles/chattingbotC__.dir
-H:/+/co/cpp/chattingbotC++/cmake-build-debug/CMakeFiles/edit_cache.dir
-H:/+/co/cpp/chattingbotC++/cmake-build-debug/CMakeFiles/rebuild_cache.dir
