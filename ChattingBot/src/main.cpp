@@ -1,6 +1,12 @@
 #include <iostream>
+#include <limits>
+#include <string>
 
 int main() {
-	std::cout << "Hello, World!" << std::endl;
+	std::string input;
+	while (input != "quit") {
+		std::getline(std::cin, input);
+		std::cout << input << std::endl;
+	}
 	return 0;
 }
