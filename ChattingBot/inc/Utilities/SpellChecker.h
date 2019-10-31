@@ -1,11 +1,13 @@
 #pragma once
-#include <string>
 #include <filesystem>
 #include <unordered_map>
 #include <fstream>
 #include <iostream>
 #include <spellcheck.h>
 #include <wrl/client.h>
+#include <locale>
+#include <codecvt>
+#include <string>
 
 namespace chatBot::utilities {
 	class SpellChecker {

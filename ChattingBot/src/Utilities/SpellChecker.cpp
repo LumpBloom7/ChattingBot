@@ -26,6 +26,7 @@ namespace chatBot::utilities {
 	}
 
 	void SpellChecker::checkSpelling(std::wstring& string) {
+		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 		HRESULT HR = checker->Check(string.c_str(), errors.GetAddressOf());
 
 		for (;;)
@@ -54,33 +55,40 @@ namespace chatBot::utilities {
 				if (startIndex != 0) --startIndex, ++length;
 				string.erase(string.begin() + startIndex, string.begin() + startIndex + length);
 				HR = checker->Check(string.c_str(), errors.GetAddressOf());
+
+				std::cout << "[SPELLCHECKER] Deleting \'" << converter.to_bytes(word) << "\' from input" << std::endl;
 			}
 			else if (action == CORRECTIVE_ACTION_REPLACE) {
 				wchar_t* replacement;
-				HR =error->get_Replacement(&replacement);
+				HR = error->get_Replacement(&replacement);
 
 				string.replace(string.begin() + startIndex, string.begin() + startIndex + length, replacement);
+				std::cout << "[SPELLCHECKER] Replacing \'" << converter.to_bytes(word) << "\' from input with \'" << converter.to_bytes(replacement) << "\'" << std::endl;
 				CoTaskMemFree(replacement);
+				HR = checker->Check(string.c_str(), errors.GetAddressOf());
+			}
+			else if (action == CORRECTIVE_ACTION_GET_SUGGESTIONS) {
+				Microsoft::WRL::ComPtr<IEnumString> suggestions;
+
+				HR = checker->Suggest(word.c_str(), suggestions.GetAddressOf());
+				std::cout << "[SPELLCHECKER] Suggest replacing \'" << converter.to_bytes(word) << "\' with: " << std::endl;
+				for (;;)
+				{
+					wchar_t* suggestion;
+
+					if (S_OK != suggestions->Next(1, &suggestion, nullptr))
+					{
+						break;
+					}
+					std::cout << "\t\'" << converter.to_bytes(suggestion) << std::endl;
+					// Add the suggestion to a list for presentation
+
+					CoTaskMemFree(suggestion);
+				}
 			}
 
 
-			//Microsoft::WRL::ComPtr<IEnumString> suggestions;
 
-			//HR = checker->Suggest(word.c_str(), suggestions.GetAddressOf());
-
-			//for (;;)
-			//{
-			//	wchar_t* suggestion;
-
-			//	if (S_OK != suggestions->Next(1, &suggestion, nullptr))
-			//	{
-			//		break;
-			//	}
-
-			//	// Add the suggestion to a list for presentation
-
-			//	CoTaskMemFree(suggestion);
-			//}
 		}
 	}
 }
