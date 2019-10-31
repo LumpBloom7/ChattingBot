@@ -25,9 +25,6 @@
   <ItemGroup>
     <ClInclude Include="inc\Utilities\SpellChecker.h" />
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="dictionary.txt" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{66F21B3A-966B-435B-9652-0C5CA12775D5}</ProjectGuid>

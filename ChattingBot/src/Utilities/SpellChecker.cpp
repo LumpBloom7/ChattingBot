@@ -25,11 +25,12 @@ namespace chatBot::utilities {
 
 	}
 
-	void SpellChecker::checkSpelling(std::wstring& string) {
+	std::string SpellChecker::checkSpelling(std::string& string) {
 		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-		HRESULT HR = checker->Check(string.c_str(), errors.GetAddressOf());
+		std::wstring wstring = converter.from_bytes(string);
+		HRESULT HR = checker->Check(wstring.c_str(), errors.GetAddressOf());
 
-		for (;;)
+		while(true)
 		{
 			Microsoft::WRL::ComPtr<ISpellingError> error;
 
@@ -45,16 +46,16 @@ namespace chatBot::utilities {
 			ULONG length;
 			HR = error->get_Length(&length);
 
-			std::wstring word(string.c_str() + startIndex,
-				string.c_str() + startIndex + length);
+			std::wstring word(wstring.c_str() + startIndex,
+				wstring.c_str() + startIndex + length);
 
 			CORRECTIVE_ACTION action;
 			HR = error->get_CorrectiveAction(&action);
 
 			if (action == CORRECTIVE_ACTION_DELETE) {
 				if (startIndex != 0) --startIndex, ++length;
-				string.erase(string.begin() + startIndex, string.begin() + startIndex + length);
-				HR = checker->Check(string.c_str(), errors.GetAddressOf());
+				wstring.erase(wstring.begin() + startIndex, wstring.begin() + startIndex + length);
+				HR = checker->Check(wstring.c_str(), errors.GetAddressOf());
 
 				std::cout << "[SPELLCHECKER] Deleting \'" << converter.to_bytes(word) << "\' from input" << std::endl;
 			}
@@ -62,16 +63,16 @@ namespace chatBot::utilities {
 				wchar_t* replacement;
 				HR = error->get_Replacement(&replacement);
 
-				string.replace(string.begin() + startIndex, string.begin() + startIndex + length, replacement);
+				wstring.replace(wstring.begin() + startIndex, wstring.begin() + startIndex + length, replacement);
 				std::cout << "[SPELLCHECKER] Replacing \'" << converter.to_bytes(word) << "\' from input with \'" << converter.to_bytes(replacement) << "\'" << std::endl;
 				CoTaskMemFree(replacement);
-				HR = checker->Check(string.c_str(), errors.GetAddressOf());
+				HR = checker->Check(wstring.c_str(), errors.GetAddressOf());
 			}
 			else if (action == CORRECTIVE_ACTION_GET_SUGGESTIONS) {
 				Microsoft::WRL::ComPtr<IEnumString> suggestions;
 
 				HR = checker->Suggest(word.c_str(), suggestions.GetAddressOf());
-				for (;;)
+				while(true)
 				{
 					wchar_t* suggestion;
 
@@ -79,15 +80,16 @@ namespace chatBot::utilities {
 					{
 						break;
 					}
-					string.replace(string.begin() + startIndex, string.begin() + startIndex + length, suggestion);
+					wstring.replace(wstring.begin() + startIndex, wstring.begin() + startIndex + length, suggestion);
 					std::cout << "[SPELLCHECKER] Replacing \'" << converter.to_bytes(word) << "\' with likely replacement " "\'" << converter.to_bytes(suggestion) <<"\'"<< std::endl;
 					// Add the suggestion to a list for presentation
 
 					CoTaskMemFree(suggestion);
-					HR = checker->Check(string.c_str(), errors.GetAddressOf());
+					HR = checker->Check(wstring.c_str(), errors.GetAddressOf());
 					break;
 				}
 			}
 		}
+		return converter.to_bytes(wstring);
 	}
 }
