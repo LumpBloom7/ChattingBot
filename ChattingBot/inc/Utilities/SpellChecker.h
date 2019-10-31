@@ -4,17 +4,19 @@
 #include <unordered_map>
 #include <fstream>
 #include <iostream>
+#include <spellcheck.h>
+#include <wrl/client.h>
 
 namespace chatBot::utilities {
 	class SpellChecker {
 	public:
-		SpellChecker(const std::filesystem::path& dictionaryPath);
-		void addWord(const std::string& string);
-		void removeWord(const std::string& string);
-		std::vector<std::string> checkSpelling(std::string& string);
+		SpellChecker();
+		void checkSpelling(std::wstring& string);
 
 	private:
 		std::unordered_map<std::string, std::string> dictionary;
+		Microsoft::WRL::ComPtr<ISpellChecker> checker;
+		Microsoft::WRL::ComPtr<IEnumSpellingError> errors;
 	};
 
 }
