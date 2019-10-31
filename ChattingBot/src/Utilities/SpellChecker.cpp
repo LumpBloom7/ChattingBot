@@ -71,7 +71,6 @@ namespace chatBot::utilities {
 				Microsoft::WRL::ComPtr<IEnumString> suggestions;
 
 				HR = checker->Suggest(word.c_str(), suggestions.GetAddressOf());
-				std::cout << "[SPELLCHECKER] Suggest replacing \'" << converter.to_bytes(word) << "\' with: " << std::endl;
 				for (;;)
 				{
 					wchar_t* suggestion;
@@ -80,15 +79,15 @@ namespace chatBot::utilities {
 					{
 						break;
 					}
-					std::cout << "\t\'" << converter.to_bytes(suggestion) << std::endl;
+					string.replace(string.begin() + startIndex, string.begin() + startIndex + length, suggestion);
+					std::cout << "[SPELLCHECKER] Replacing \'" << converter.to_bytes(word) << "\' with likely replacement " "\'" << converter.to_bytes(suggestion) <<"\'"<< std::endl;
 					// Add the suggestion to a list for presentation
 
 					CoTaskMemFree(suggestion);
+					HR = checker->Check(string.c_str(), errors.GetAddressOf());
+					break;
 				}
 			}
-
-
-
 		}
 	}
 }
